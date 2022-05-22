@@ -1,0 +1,4 @@
+﻿  Grafos.cpp
+C:\Users\Murilo\Documents\Projetos\Barao\Grafos\Grafos.cpp(153): warning C4715: 'obter_letra_index': not all control paths return a value
+C:\Users\Murilo\Documents\Projetos\Barao\Grafos\Grafos.cpp(96): warning C4715: 'obter_index_alfabeto': not all control paths return a value
+  Grafos.vcxproj -> C:\Users\Murilo\Documents\Projetos\Barao\Grafos\Debug\Grafos.exe
