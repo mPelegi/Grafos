@@ -5,38 +5,54 @@
 #include <sstream>
 #include <fstream>
 #include <algorithm>
+#include <queue>
+#define INFINITO 10000000
 
 using namespace std;
 
-enum Alfabeto
-{
-    A = 0,
-    B = 1,
-    C = 2,
-    D = 3,
-    E = 4,
-    F = 5,
-    G = 6,
-    H = 7,
-    I = 8,
-    J = 9,
-    K = 10,
-    L = 11,
-    M = 12,
-    N = 13,
-    O = 14,
-    P = 15,
-    Q = 16,
-    R = 17,
-    S = 18,
-    T = 19,
-    U = 20,
-    V = 21,
-    W = 22,
-    X = 23,
-    Y = 24,
-    Z = 25
-};
+// enum Alfabeto
+// {
+//     A = 0,
+//     B = 1,
+//     C = 2,
+//     D = 3,
+//     E = 4,
+//     F = 5,
+//     G = 6,
+//     H = 7,
+//     I = 8,
+//     J = 9,
+//     K = 10,
+//     L = 11,
+//     M = 12,
+//     N = 13,
+//     O = 14,
+//     P = 15,
+//     Q = 16,
+//     R = 17,
+//     S = 18,
+//     T = 19,
+//     U = 20,
+//     V = 21,
+//     W = 22,
+//     X = 23,
+//     Y = 24,
+//     Z = 25
+// };
+
+
+vector<pair<int, int>> lista_adjacencia_g1[26];
+vector<pair<int, int>> lista_adjacencia_g2[26];
+vector<pair<int, int>> lista_adjacencia_g3[26];
+vector<int> lista_largura_g1;
+vector<int> lista_profundidade_g2;
+vector<int> lista_caminho_minimo_g3;
+vector<int> proximo_vertice_g1;
+vector<int> proximo_vertice_g2;
+vector<int> proximo_vertice_g3;
+int cont_vertice_g1 = 0;
+int cont_vertice_g2 = 0;
+int cont_vertice_g3 = 0;
 
 int obter_index_alfabeto(string str)
 {
@@ -157,22 +173,6 @@ char obter_letra_index(int i)
         return 'z';
     }
 }
-
-struct Aresta
-{
-    char x;
-    char y;
-};
-
-vector<pair<int, int>> lista_adjacencia_g1[26];
-vector<pair<int, int>> lista_adjacencia_g2[26];
-vector<pair<int, int>> lista_adjacencia_g3[26];
-vector<int> lista_largura_g1;
-vector<int> lista_profundidade_g2;
-vector<int> proximo_vertice_g1;
-vector<int> proximo_vertice_g2;
-int cont_vertice_g1 = 0;
-int cont_vertice_g2 = 0;
 
 void printar_listas_adjacencia1()
 {
@@ -428,8 +428,11 @@ void carregar_arquivos()
 
 void faz_busca_largura(int ini)
 {
-    proximo_vertice_g1.push_back(ini);
+    if(find(lista_largura_g1.begin(), lista_largura_g1.end(), ini) == lista_largura_g1.end())
+        proximo_vertice_g1.push_back(ini);
+
     cont_vertice_g1++;
+    
     if (find(lista_largura_g1.begin(), lista_largura_g1.end(), ini) == lista_largura_g1.end())
     {
         // se o vértice ainda nao foi lido, adiciona-o à lista
@@ -489,6 +492,89 @@ void printa_busca_profundidade_g2()
         cout << obter_letra_index(lista_profundidade_g2[i]) << " ";
 }
 
+void printa_menor_caminho(int pais[], int destino) {
+    if (pais[destino] == -1) {
+        cout << obter_letra_index(destino);
+        return;
+    }
+
+    printa_menor_caminho(pais, pais[destino]);
+
+    cout << " -> " << obter_letra_index(destino) ;
+}
+
+// algoritmo de Dijkstra
+void busca_menor_caminho(int orig, int dest)
+{
+    // vetor de distâncias
+    int dist[26];
+    int pais[26];
+    /*
+       vetor de visitados serve para caso o vértice já tenha sido
+       expandido (visitado), não expandir mais
+    */
+    int visitados[26];
+
+    // fila de prioridades de pair (distancia, vértice)
+    priority_queue < pair<int, int>,
+        vector<pair<int, int> >, greater<pair<int, int> > > pq;
+
+    // inicia o vetor de distâncias e visitados
+    for (int i = 0; i < 26; i++)
+    {
+        pais[i] = -1;
+        dist[i] = INFINITO;
+        visitados[i] = false;
+    }
+
+    // a distância de orig para orig é 0
+    dist[orig] = 0;
+
+    // insere na fila
+    pq.push(make_pair(dist[orig], orig));
+
+    // loop do algoritmo
+    while (!pq.empty())
+    {
+        pair<int, int> p = pq.top(); // extrai o pair do topo
+        int u = p.second; // obtém o vértice do pair
+        pq.pop(); // remove da fila
+
+        // verifica se o vértice não foi expandido
+        if (visitados[u] == false)
+        {
+            // marca como visitado
+            visitados[u] = true;
+
+            vector<pair<int, int>> it;
+
+            // percorre os vértices "v" adjacentes de "u"
+            // for(it = lista_adjacencia_g3[u].begin(); it != lista_adjacencia_g3[u].end(); it++)
+            for (auto it : lista_adjacencia_g3[u])
+            {
+                // obtém o vértice adjacente e o custo da aresta
+                int v = it.first;
+                int custo_aresta = it.second;
+
+                // relaxamento (u, v)
+                if (dist[v] > (dist[u] + custo_aresta))
+                {
+                    // atualiza a distância de "v" e insere na fila
+                    dist[v] = dist[u] + custo_aresta;
+                    pais[v] = u;
+                    pq.push(make_pair(dist[v], v));
+                }
+            }
+        }
+    }
+
+    cout << "O menor caminho do grafo 3 entre " << obter_letra_index(orig) << " e " << obter_letra_index(dest) << " eh: ";
+    printa_menor_caminho(pais, dest);   //passa vértices do menor caminho e o caminho final
+    cout << endl <<  "Custo: " << dist[dest];
+
+    // retorna a distância mínima até o destino
+    return;
+}
 
 int main()
 {
@@ -501,10 +587,14 @@ int main()
     proximo_vertice_g2.clear();
     carregar_arquivos();
 
+    cout << "Listas de adjacencia:" << endl;
+    cout << "G1:" << endl;
     printar_listas_adjacencia1();
     cout << endl << endl;
+    cout << "G2:" << endl;
     printar_listas_adjacencia2();
     cout << endl << endl;
+    cout << "G3:" << endl;
     printar_listas_adjacencia3();
     cout << endl << endl;
     faz_busca_largura(1); // B
@@ -515,5 +605,7 @@ int main()
     printa_busca_profundidade_g2();
     cout << endl << endl;
 
+    busca_menor_caminho(23,19);
+    
     return 0;
 }
