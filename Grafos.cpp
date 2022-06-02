@@ -233,29 +233,33 @@ void carregar_arquivos()
 //Funcao recursiva para realizar a busca em largura, definindo qual o vertice inicial
 void faz_busca_largura(int ini)
 {
-    if (find(lista_largura_g1.begin(), lista_largura_g1.end(), ini) == lista_largura_g1.end())
-        proximo_vertice_g1.push_back(ini);
-
+    //contador para controle do índice do vértice
     cont_vertice_g1++;
 
+    //verifica se o vértice já foi visitado
     if (find(lista_largura_g1.begin(), lista_largura_g1.end(), ini) == lista_largura_g1.end())
     {
-        // se o vértice ainda nao foi lido, adiciona-o à lista
+        // se o vértice ainda nao foi visitado, adiciona-o à lista de largura e à lista de próximos vertices a serem lidos
         lista_largura_g1.push_back(ini);
+        proximo_vertice_g1.push_back(ini);
     }
 
+    //verifico todas as adjacencias daquela vértice
     for (auto par : lista_adjacencia_g1[ini])
     {
-
         if (find(lista_largura_g1.begin(), lista_largura_g1.end(), par.first) == lista_largura_g1.end())
-        { // se o vértice ainda nao foi lido, adiciona-o aos lidos
+        { 
+            // se encontro algum vértice adjacente que ainda não foi visitado 
+            // adiciona-o à lista de largura e à lista de próximos vertices a serem lidos
             lista_largura_g1.push_back(par.first);
             proximo_vertice_g1.push_back(par.first);
         }
     }
 
+        //se há próximos vertices a serem lidos na sequencia que foram encontrados
     if (proximo_vertice_g1[cont_vertice_g1] != proximo_vertice_g1[proximo_vertice_g1.size()-1])
-    { // se há próximos vertices a serem lidos na sequencia que foram encontrados
+    { 
+        //chamo recursão para visitar próximos vértices
         faz_busca_largura(proximo_vertice_g1[cont_vertice_g1]);
     }
 }
@@ -263,21 +267,23 @@ void faz_busca_largura(int ini)
 //Funcao recursiva para realizar a busca em profundidade, definindo qual o vertice inicial
 void faz_busca_profundidade(int ini)
 {
-    proximo_vertice_g2.push_back(ini);
+    //contador para controle do índice dos próximos vértices a serem visitados
     cont_vertice_g2++;
+
+    //verifica se o vértice atual já foi lido
     if (find(lista_profundidade_g2.begin(), lista_profundidade_g2.end(), ini) == lista_profundidade_g2.end())
     {
-        // se o vértice ainda nao foi lido, adiciona-o à lista
+        // se o vértice ainda nao foi lido, adiciona-o à lista de vértices lidos
         lista_profundidade_g2.push_back(ini);
     }
 
+    //percorro todos os vértices adjacentes ao vértice atual
     for (auto par : lista_adjacencia_g2[ini])
     {
-
+        //se encontro algum vértice que ainda não foi lido
         if (find(lista_profundidade_g2.begin(), lista_profundidade_g2.end(), par.first) == lista_profundidade_g2.end())
         { 
-            // se o vértice ainda nao foi lido, adiciona-o aos lidos
-            // lista_profundidade_g2.push_back(par.first);
+            //entro na recursão para buscar o próximo vértice adjacente
             faz_busca_profundidade(par.first); //recursao pra ja buscar o proximo vertice antes de seguir
         }
     }
